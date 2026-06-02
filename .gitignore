@@ -1,0 +1,29 @@
+# IDEs
+.vs/
+.vscode/
+*.swp
+*.swo
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+bin/
+obj/
+build/
+dist/
+out/
+
+# JS/Node
+node_modules/
+.vite/
+.eslintcache
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
