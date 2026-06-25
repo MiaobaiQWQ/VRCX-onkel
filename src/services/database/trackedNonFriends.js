@@ -4,10 +4,6 @@ import sqliteService from '../sqlite.js';
 const trackedNonFriends = {
     async addTrackedNonFriend(userId, displayName, location) {
         if (!dbVars.userPrefix || !userId) return;
-        if (typeof AppApi !== 'undefined' && !AppApi.GetIsInstance2()) {
-            const configRepository = (await import('../../services/config')).default;
-            if (configRepository.getBool('VRCX_ReadOnlySync', false)) return;
-        }
         // Ensure location is a string and not "[object Object]"
         let loc = location;
         if (typeof loc !== 'string' || loc === '[object Object]') {
@@ -43,10 +39,6 @@ const trackedNonFriends = {
 
     async removeTrackedNonFriend(userId) {
         if (!dbVars.userPrefix || !userId) return;
-        if (typeof AppApi !== 'undefined' && !AppApi.GetIsInstance2()) {
-            const configRepository = (await import('../../services/config')).default;
-            if (configRepository.getBool('VRCX_ReadOnlySync', false)) return;
-        }
         await sqliteService.executeNonQuery(
             `DELETE FROM ${dbVars.userPrefix}_tracked_nonfriends WHERE user_id = @userId`,
             { '@userId': userId }
@@ -57,13 +49,7 @@ const trackedNonFriends = {
         const results = [];
         if (!dbVars.userPrefix) return results;
         
-        let tableName = `${dbVars.userPrefix}_tracked_nonfriends`;
-        if (typeof AppApi !== 'undefined' && !AppApi.GetIsInstance2()) {
-            const configRepository = (await import('../../services/config')).default;
-            if (configRepository.getBool('VRCX_ReadOnlySync', false)) {
-                tableName = `instance2_db.instance2_${dbVars.userPrefix}_tracked_nonfriends`;
-            }
-        }
+        const tableName = `${dbVars.userPrefix}_tracked_nonfriends`;
 
         // Cleanup for "[object Object]"
         try {
@@ -99,13 +85,7 @@ const trackedNonFriends = {
     async isTrackedNonFriend(userId) {
         if (!dbVars.userPrefix || !userId) return false;
         
-        let tableName = `${dbVars.userPrefix}_tracked_nonfriends`;
-        if (typeof AppApi !== 'undefined' && !AppApi.GetIsInstance2()) {
-            const configRepository = (await import('../../services/config')).default;
-            if (configRepository.getBool('VRCX_ReadOnlySync', false)) {
-                tableName = `instance2_db.instance2_${dbVars.userPrefix}_tracked_nonfriends`;
-            }
-        }
+        const tableName = `${dbVars.userPrefix}_tracked_nonfriends`;
         
         let found = false;
         try {
@@ -124,10 +104,6 @@ const trackedNonFriends = {
 
     async updateTrackedNonFriendDisplayName(userId, displayName) {
         if (!dbVars.userPrefix || !userId) return;
-        if (typeof AppApi !== 'undefined' && !AppApi.GetIsInstance2()) {
-            const configRepository = (await import('../../services/config')).default;
-            if (configRepository.getBool('VRCX_ReadOnlySync', false)) return;
-        }
         await sqliteService.executeNonQuery(
             `UPDATE ${dbVars.userPrefix}_tracked_nonfriends SET display_name = @displayName WHERE user_id = @userId`,
             {

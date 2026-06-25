@@ -73,21 +73,25 @@ const database = {
         }
         dbVars.userPrefix = dbVars.instancePrefix + dbVars.userPrefix;
 
-        // Attach instance2 database if we are main instance and readOnlySync is enabled
+        // Attach extra instance databases if we are main instance
         if (typeof AppApi !== 'undefined' && !AppApi.GetIsInstance2()) {
             try {
-                const configRepository = (await import('../../services/config')).default;
-                const readOnlySync = configRepository.getBool('VRCX_ReadOnlySync', false);
-                if (readOnlySync && AppApi.GetAppDataDirectory) {
-                    const instance2AppData = await AppApi.GetAppDataDirectory(true);
-                    if (instance2AppData) {
-                        const instance2DbPath = instance2AppData + '\\VRCX.sqlite3';
-                        await sqliteService.executeNonQuery(`ATTACH DATABASE '${instance2DbPath}' AS instance2_db`);
-                        console.log('Attached instance2 database for read-only sync');
+                if (AppApi.GetAppDataDirectory) {
+                    const extraInstancesStr = await VRCXStorage.Get('VRCX_ExtraInstances');
+                    const extraInstances = JSON.parse(extraInstancesStr || '[]');
+                    for (let i = 0; i < extraInstances.length; i++) {
+                        const instance = extraInstances[i];
+                        const idx = instance._index ?? (i + 2);
+                        const instanceAppData = await AppApi.GetAppDataDirectory(idx);
+                        if (instanceAppData) {
+                            const instanceDbPath = instanceAppData + '\\VRCX.sqlite3';
+                            await sqliteService.executeNonQuery(`ATTACH DATABASE '${instanceDbPath}' AS instance${idx}_db`);
+                            console.log(`Attached instance${idx} database for read-only sync`);
+                        }
                     }
                 }
             } catch (e) {
-                console.error('Failed to attach instance2 database', e);
+                console.error('Failed to attach extra instance databases', e);
             }
         }
 
@@ -199,14 +203,10 @@ const database = {
 
     async initTables() {
         if (typeof AppApi !== 'undefined' && AppApi.GetIsInstance2()) {
-            const readOnlySync = await VRCXStorage.Get('VRCX_ReadOnlySync') === 'true';
-            if (readOnlySync) {
-                await this.syncFromMainInstance();
-                // Periodic sync every 5 minutes
-                setInterval(() => {
-                    this.syncFromMainInstance();
-                }, 5 * 60 * 1000);
-            }
+            await this.syncFromMainInstance();
+            setInterval(() => {
+                this.syncFromMainInstance();
+            }, 5 * 60 * 1000);
         }
         await sqliteService.executeNonQuery(
             `CREATE TABLE IF NOT EXISTS gamelog_location (id INTEGER PRIMARY KEY, created_at TEXT, location TEXT, world_id TEXT, world_name TEXT, time INTEGER, group_name TEXT, UNIQUE(created_at, location))`

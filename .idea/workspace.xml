@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="bc4e43ab-1b5e-499b-aa62-fed542872cd8" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/nav-menu/navLayoutDefaults.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/nav-menu/navLayoutDefaults.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localization/ja.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/localization/ja.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localization/zh-CN.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/localization/zh-CN.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/localization/zh-TW.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/localization/zh-TW.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/plugins/router.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/plugins/router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shared/constants/ui.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/shared/constants/ui.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stores/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/stores/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stores/trackedNonFriends.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/stores/trackedNonFriends.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="3F3GSCg7bhcRksKMd5S0Y6dplod" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-2653e85de345-6d6dccd035ac-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.31033.139" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="bc4e43ab-1b5e-499b-aa62-fed542872cd8" name="更改" comment="" />
+      <created>1781296360242</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1781296360242</updated>
+    </task>
+    <servers />
+  </component>
+</project>

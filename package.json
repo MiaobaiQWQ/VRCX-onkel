@@ -39,7 +39,8 @@
     },
     "dependencies": {
         "hazardous": "^0.3.0",
-        "node-api-dotnet": "^0.9.19"
+        "node-api-dotnet": "^0.9.19",
+        "uuid": "^14.0.0"
     },
     "devDependencies": {
         "@dnd-kit/vue": "^0.4.0",

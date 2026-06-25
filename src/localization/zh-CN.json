@@ -848,25 +848,29 @@
                 "vr": "VR",
                 "media": "媒体",
                 "integrations": "集成",
-                "dual_instance": "双开管理"
+                "dual_instance": "多开管理"
             },
             "dual_instance": {
-                "header": "双开管理",
-                "launch_instance_2": "启动第二实例",
-                "launch_instance_2_description": "使用独立的配置和数据目录启动另一个 VRCX 实例。",
+                "header": "多开管理",
+                "empty_state": "尚未配置任何额外实例。点击「添加实例」以启动额外的 VRCX 实例。",
+                "add_instance": "添加实例",
+                "max_instances_reached": "最多支持 {max} 个实例",
+                "instance_number": "实例 {n}",
+                "launch": "启动",
+                "remove": "移除",
                 "port": "端口",
-                "port_description": "第二实例使用的叠加层服务器端口。",
+                "port_description": "此实例使用的叠加层服务器端口。",
                 "user_data_dir": "用户数据目录",
-                "user_data_dir_description": "第二实例存储缓存和数据库的目录。",
+                "user_data_dir_description": "此实例存储缓存和数据库的目录。",
                 "profile_directory": "配置文件目录",
-                "profile_directory_description": "第二实例使用的配置文件名称。",
-                "instance_2_features": "第二实例功能",
+                "profile_directory_description": "此实例使用的配置文件名称。",
+                "features": "实例功能",
                 "enable_jirai_features": "启用 Jirai 增强模块",
-                "enable_jirai_features_description": "在第二实例中启用双人关系查询、非好友追踪等功能。",
+                "enable_jirai_features_description": "在此实例中启用双人关系查询、非好友追踪等功能。",
                 "read_only_sync": "只读同步",
-                "read_only_sync_description": "在主实例中以只读方式查看第二实例的数据。",
+                "read_only_sync_description": "在主实例中以只读方式查看此实例的数据。",
                 "memory_limit": "内存限制 (MB)",
-                "memory_limit_description": "限制第二实例的最大内存占用 (Electron --max-old-space-size)。"
+                "memory_limit_description": "限制此实例的最大内存占用 (Electron --max-old-space-size)。"
             },
             "social": {
                 "interaction": {

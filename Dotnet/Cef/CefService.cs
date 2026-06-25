@@ -24,16 +24,20 @@ namespace VRCX
         internal void Init()
         {
             var isOverlay = StartupArgs.LaunchArguments.IsOverlay;
-            var isInstance2 = StartupArgs.LaunchArguments.IsInstance2;
+            var instanceIndex = StartupArgs.LaunchArguments.InstanceIndex;
             var userDataDir = Path.Join(Program.AppDataDirectory, "userdata");
 
-            if (isOverlay)
+            if (!string.IsNullOrEmpty(StartupArgs.LaunchArguments.UserDataDir))
+            {
+                userDataDir = Path.Join(StartupArgs.LaunchArguments.UserDataDir, StartupArgs.LaunchArguments.ProfileDirectory ?? "Default");
+            }
+            else if (isOverlay)
             {
                 userDataDir = Path.Join(Program.AppDataDirectory, "overlay/userdata");
             }
-            else if (isInstance2)
+            else if (instanceIndex >= 2)
             {
-                userDataDir = Path.Join(Program.AppDataDirectory, "instance2/userdata");
+                userDataDir = Path.Join(Program.AppDataDirectory, $"instance{instanceIndex}/userdata");
             }
 
             // delete userdata if Cef version has been downgraded, fixes VRCX not opening after a downgrade
@@ -56,9 +60,9 @@ namespace VRCX
             {
                 cefSettings.LogFile = Path.Join(Program.AppDataDirectory, "overlay/logs/cef.log");
             }
-            else if (isInstance2)
+            else if (instanceIndex >= 2)
             {
-                cefSettings.LogFile = Path.Join(Program.AppDataDirectory, "logs", "cef.instance2.log");
+                cefSettings.LogFile = Path.Join(Program.AppDataDirectory, "logs", $"cef.instance{instanceIndex}.log");
             }
 
             cefSettings.RegisterScheme(new CefCustomScheme
@@ -100,7 +104,7 @@ namespace VRCX
                 // Discover network targets, Configure...
                 // Add Remote Target: localhost:8089
                 logger.Info("Debug mode enabled");
-                cefSettings.RemoteDebuggingPort = !isOverlay ? 8089 : 8090;
+                cefSettings.RemoteDebuggingPort = !isOverlay ? (8089 + instanceIndex) : 8090;
                 cefSettings.CefCommandLineArgs["remote-allow-origins"] = "*";
             }
 

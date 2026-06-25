@@ -94,7 +94,15 @@ namespace VRCX
                     arguments.ProfileDirectory = arg.Substring(VrcxLaunchArguments.ProfileDirectoryPrefix.Length + 1);
 
                 if (arg == VrcxLaunchArguments.IsInstance2Prefix)
-                    arguments.IsInstance2 = true;
+                    arguments.InstanceIndex = 2;
+
+                if (arg.StartsWith(VrcxLaunchArguments.InstanceIndexPrefix) && arg.Length > VrcxLaunchArguments.InstanceIndexPrefix.Length)
+                {
+                    if (int.TryParse(arg.Substring(VrcxLaunchArguments.InstanceIndexPrefix.Length + 1), out var idx))
+                    {
+                        arguments.InstanceIndex = idx;
+                    }
+                }
 
                 if (arg.StartsWith(VrcxLaunchArguments.PortPrefix) && arg.Length > VrcxLaunchArguments.PortPrefix.Length)
                 {
@@ -138,7 +146,10 @@ namespace VRCX
             public string ProfileDirectory { get; set; }
 
             public const string IsInstance2Prefix = "--instance2";
-            public bool IsInstance2 { get; set; }
+            public int InstanceIndex { get; set; } = 0;
+            public bool IsInstance2 => InstanceIndex >= 2;
+
+            public const string InstanceIndexPrefix = "--instance-index";
 
             public const string PortPrefix = "--port";
             public int Port { get; set; } = 0;
@@ -190,7 +201,7 @@ namespace VRCX
                 if (processArguments.ConfigDirectory == launchArguments.ConfigDirectory &&
                     processArguments.UserDataDir == launchArguments.UserDataDir &&
                     processArguments.ProfileDirectory == launchArguments.ProfileDirectory &&
-                    processArguments.IsInstance2 == launchArguments.IsInstance2)
+                    processArguments.InstanceIndex == launchArguments.InstanceIndex)
                 {
                     isDuplicateProcessRunning = true;
                     break;

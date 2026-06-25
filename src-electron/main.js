@@ -61,7 +61,8 @@ const x11 = args.includes('--x11');
 const noDesktop = args.includes('--no-desktop');
 const startup = args.includes('--startup');
 const debug = args.includes('--hot-reload');
-const isInstance2 = args.includes('--instance2');
+const instanceIndexRaw = getArgValue('--instance-index');
+const isInstance2 = instanceIndexRaw ? parseInt(instanceIndexRaw, 10) : 0;
 
 function getArgValue(argName) {
     const arg = args.find((a) => a.startsWith(argName + '='));
@@ -524,12 +525,12 @@ function destroyTray() {
     }
 }
 function createTray() {
-    const iconSuffix = isInstance2 ? '2' : '';
+    const iconSuffix = isInstance2 > 0 ? String(isInstance2) : '';
     if (process.platform === 'darwin') {
         const image = nativeImage.createFromPath(
             path.join(rootDir, `images/VRCX${iconSuffix}.png`)
         );
-        if (image.isEmpty() && isInstance2) {
+        if (image.isEmpty() && isInstance2 > 0) {
             trayIcon = nativeImage.createFromPath(path.join(rootDir, 'images/VRCX.png')).resize({ width: 16, height: 16 });
         } else {
             trayIcon = image.resize({ width: 16, height: 16 });
@@ -538,7 +539,7 @@ function createTray() {
         const imageNotify = nativeImage.createFromPath(
             path.join(rootDir, `images/VRCX_notify${iconSuffix}.png`)
         );
-        if (imageNotify.isEmpty() && isInstance2) {
+        if (imageNotify.isEmpty() && isInstance2 > 0) {
             trayIconNotify = nativeImage.createFromPath(path.join(rootDir, 'images/VRCX_notify.png')).resize({ width: 16, height: 16 });
         } else {
             trayIconNotify = imageNotify.resize({ width: 16, height: 16 });
@@ -556,7 +557,7 @@ function createTray() {
         const imageNotify = nativeImage.createFromPath(
             path.join(rootDir, `images/VRCX_notify${iconSuffix}.png`)
         );
-        if (imageNotify.isEmpty() && isInstance2) {
+        if (imageNotify.isEmpty() && isInstance2 > 0) {
             trayIconNotify = nativeImage.createFromPath(path.join(rootDir, 'images/VRCX_notify.png')).resize({ width: 64, height: 64 });
         } else {
             trayIconNotify = imageNotify.resize({ width: 64, height: 64 });
@@ -569,9 +570,10 @@ function createTray() {
         trayIconNotify = fs.existsSync(notifyIcoPath) ? notifyIcoPath : path.join(rootDir, 'images/VRCX_notify.ico');
     }
     tray = new Tray(trayIcon);
+    const instanceLabel = isInstance2 > 0 ? ` (Instance ${isInstance2})` : '';
     const contextMenu = Menu.buildFromTemplate([
         {
-            label: isInstance2 ? 'Open (Instance 2)' : 'Open',
+            label: `Open${instanceLabel}`,
             type: 'normal',
             click: function () {
                 mainWindow.show();
@@ -585,7 +587,7 @@ function createTray() {
             }
         },
         {
-            label: isInstance2 ? 'Quit VRCX (Instance 2)' : 'Quit VRCX',
+            label: `Quit VRCX${instanceLabel}`,
             type: 'normal',
             click: function () {
                 appIsQuitting = true;
@@ -593,7 +595,7 @@ function createTray() {
             }
         }
     ]);
-    tray.setToolTip(isInstance2 ? 'VRCX (Instance 2)' : 'VRCX');
+    tray.setToolTip(`VRCX${instanceLabel}`);
     tray.setContextMenu(contextMenu);
 
     tray.on('click', () => {
@@ -797,8 +799,9 @@ function downloadIcon(url, targetPath) {
 
 function getElectronUserDataPath() {
     let electronUserData = 'ElectronUserData';
-    if (isInstance2) {
-        electronUserData = 'ElectronUserData2';
+    let electronUserData = 'ElectronUserData';
+    if (isInstance2 > 0) {
+        electronUserData = `ElectronUserData${isInstance2}`;
     }
     const vrcxPath = getVRCXPath();
     if (process.platform === 'win32') {

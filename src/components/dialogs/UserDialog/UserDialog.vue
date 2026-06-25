@@ -99,8 +99,7 @@
         useModalStore,
         useModerationStore,
         useNotificationStore,
-        useUserStore,
-        useGeneralSettingsStore
+        useUserStore
     } from '../../../stores';
     import { copyToClipboard } from '../../../shared/utils';
     import { formatJsonVars } from '../../../shared/utils/base/ui';
@@ -144,12 +143,9 @@
         const jsonIdx = tabs.findIndex((tab) => tab.value === 'JSON');
         tabs.splice(jsonIdx, 0, { value: 'Activity', label: t('dialog.user.activity.header') });
         // Insert Status Distribution before JSON (friends or self only)
-        const generalSettingsStore = useGeneralSettingsStore();
-        const enableJiraiFeatures = generalSettingsStore.enableJiraiFeatures;
-        const readOnlySync = generalSettingsStore.readOnlySync;
-        const isInstance2 = typeof AppApi !== 'undefined' ? AppApi.GetIsInstance2() : false;
-        
-        if ((isInstance2 && enableJiraiFeatures) || (!isInstance2 && readOnlySync)) {
+        const instanceIndex = typeof AppApi !== 'undefined' ? AppApi.GetInstanceIndex() : 0;
+
+        if (instanceIndex > 0) {
             if (userDialog.value.isFriend || userDialog.value.id === currentUser.value.id) {
                 const jsonIdx2 = tabs.findIndex((tab) => tab.value === 'JSON');
                 tabs.splice(jsonIdx2, 0, {

@@ -65,13 +65,23 @@ namespace VRCX
             return command;
         }
 
-        public string GetAppDataDirectory(bool isInstance2 = false)
+        public string GetAppDataDirectory(int instanceIndex = 0)
         {
-            if (isInstance2)
+            if (instanceIndex >= 2)
             {
-                return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VRCX_instance2");
+                return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), $"VRCX_instance{instanceIndex}");
             }
             return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VRCX");
+        }
+
+        public string GetAppDataDirectory(bool isInstance2)
+        {
+            return GetAppDataDirectory(isInstance2 ? 2 : 0);
+        }
+
+        public int GetInstanceIndex()
+        {
+            return StartupArgs.LaunchArguments.InstanceIndex;
         }
 
         public bool GetIsInstance2()
@@ -81,14 +91,20 @@ namespace VRCX
 
         public void LaunchInstance2(string customDataDir = "", string customProfile = "", int customPort = 0, int memoryLimit = 0)
         {
-            if (StartupArgs.LaunchArguments.IsInstance2)
+            LaunchInstanceN(0, customDataDir, customProfile, customPort, memoryLimit);
+        }
+
+        public void LaunchInstanceN(int instanceIndex, string customDataDir = "", string customProfile = "", int customPort = 0, int memoryLimit = 0)
+        {
+            if (StartupArgs.LaunchArguments.InstanceIndex > 0)
             {
                 return;
             }
 
             var exePath = Process.GetCurrentProcess().MainModule.FileName;
             var args = new StringBuilder();
-            args.Append("--instance2");
+            args.Append($"--instance-index={instanceIndex}");
+            args.Append(" --read-only-sync");
 
             if (!string.IsNullOrEmpty(customDataDir))
             {
@@ -98,6 +114,10 @@ namespace VRCX
             if (!string.IsNullOrEmpty(customProfile))
             {
                 args.Append($" --profile-directory=\"{customProfile}\"");
+            }
+            else if (instanceIndex > 1)
+            {
+                args.Append($" --profile-directory=\"instance{instanceIndex}\"");
             }
 
             if (customPort > 0)

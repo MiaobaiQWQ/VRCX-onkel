@@ -45,12 +45,22 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
     const recentActionCooldownEnabled = ref(false);
     const recentActionCooldownMinutes = ref(60);
 
-    const dualInstancePort = ref(24001);
-    const dualInstanceUserDataDir = ref('');
-    const dualInstanceProfileDirectory = ref('instance2');
-    const enableJiraiFeatures = ref(true);
-    const readOnlySync = ref(false);
-    const dualInstanceMemoryLimit = ref(512);
+    const MAX_EXTRA_INSTANCES = 9;
+
+    function createDefaultInstance(index) {
+        return {
+            id: Date.now() + index,
+            _index: index,
+            port: 24000 + index,
+            userDataDir: '',
+            profileDirectory: `instance${index}`,
+            enableJiraiFeatures: true,
+            readOnlySync: false,
+            memoryLimit: 512
+        };
+    }
+
+    const extraInstances = ref([]);
 
     async function initGeneralSettings() {
         const [
@@ -80,12 +90,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             autoAcceptInviteGroupsStrConfig,
             recentActionCooldownEnabledConfig,
             recentActionCooldownMinutesConfig,
-            dualInstancePortConfig,
-            dualInstanceUserDataDirConfig,
-            dualInstanceProfileDirectoryConfig,
-            enableJiraiFeaturesConfig,
-            readOnlySyncConfig,
-            dualInstanceMemoryLimitConfig
+            extraInstancesConfigStr
         ] = await Promise.all([
             configRepository.getBool('VRCX_StartAtWindowsStartup', false),
             VRCXStorage.Get('VRCX_StartAsMinimizedState'),
@@ -128,12 +133,7 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             configRepository.getString('VRCX_autoAcceptInviteGroups', '[]'),
             configRepository.getBool('VRCX_recentActionCooldownEnabled', false),
             configRepository.getInt('VRCX_recentActionCooldownMinutes', 60),
-            configRepository.getInt('VRCX_DualInstancePort', 24001),
-            configRepository.getString('VRCX_DualInstanceUserDataDir', ''),
-            configRepository.getString('VRCX_DualInstanceProfileDirectory', 'instance2'),
-            configRepository.getBool('VRCX_EnableJiraiFeatures', true),
-            configRepository.getBool('VRCX_ReadOnlySync', false),
-            configRepository.getInt('VRCX_DualInstanceMemoryLimit', 512)
+            configRepository.getString('VRCX_ExtraInstances', '[]')
         ]);
 
         isStartAtWindowsStartup.value = isStartAtWindowsStartupConfig;
@@ -187,12 +187,14 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         recentActionCooldownEnabled.value = recentActionCooldownEnabledConfig;
         recentActionCooldownMinutes.value = recentActionCooldownMinutesConfig;
 
-        dualInstancePort.value = dualInstancePortConfig;
-        dualInstanceUserDataDir.value = dualInstanceUserDataDirConfig;
-        dualInstanceProfileDirectory.value = dualInstanceProfileDirectoryConfig;
-        enableJiraiFeatures.value = enableJiraiFeaturesConfig;
-        readOnlySync.value = readOnlySyncConfig;
-        dualInstanceMemoryLimit.value = dualInstanceMemoryLimitConfig;
+        try {
+            const parsed = JSON.parse(extraInstancesConfigStr);
+            if (Array.isArray(parsed)) {
+                extraInstances.value = parsed;
+            }
+        } catch {
+            extraInstances.value = [];
+        }
     }
 
     initGeneralSettings();
@@ -468,36 +470,73 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
     }
 
     function setDualInstancePort(value) {
-        const parsed = parseInt(value, 10);
-        dualInstancePort.value = Number.isNaN(parsed) ? 24001 : parsed;
-        configRepository.setInt('VRCX_DualInstancePort', dualInstancePort.value);
+        console.warn('setDualInstancePort is deprecated; update instance config by index');
     }
 
     function setDualInstanceUserDataDir(value) {
-        dualInstanceUserDataDir.value = value;
-        configRepository.setString('VRCX_DualInstanceUserDataDir', value);
+        console.warn('setDualInstanceUserDataDir is deprecated; update instance config by index');
     }
 
     function setDualInstanceProfileDirectory(value) {
-        dualInstanceProfileDirectory.value = value;
-        configRepository.setString('VRCX_DualInstanceProfileDirectory', value);
+        console.warn('setDualInstanceProfileDirectory is deprecated; update instance config by index');
     }
 
     function setEnableJiraiFeatures() {
-        enableJiraiFeatures.value = !enableJiraiFeatures.value;
-        configRepository.setBool('VRCX_EnableJiraiFeatures', enableJiraiFeatures.value);
+        console.warn('setEnableJiraiFeatures is deprecated; update instance config by index');
     }
 
     function setReadOnlySync(value) {
-        readOnlySync.value = value;
-        configRepository.setBool('VRCX_ReadOnlySync', value);
-        VRCXStorage.Set('VRCX_ReadOnlySync', value.toString());
+        console.warn('setReadOnlySync is deprecated; update instance config by index');
     }
 
     function setDualInstanceMemoryLimit(value) {
-        const parsed = parseInt(value, 10);
-        dualInstanceMemoryLimit.value = Number.isNaN(parsed) ? 512 : parsed;
-        configRepository.setInt('VRCX_DualInstanceMemoryLimit', dualInstanceMemoryLimit.value);
+        console.warn('setDualInstanceMemoryLimit is deprecated; update instance config by index');
+    }
+
+    function saveExtraInstances() {
+        configRepository.setString('VRCX_ExtraInstances', JSON.stringify(extraInstances.value));
+    }
+
+    function addExtraInstance() {
+        if (extraInstances.value.length >= MAX_EXTRA_INSTANCES) return;
+        const nextIndex = extraInstances.value.length + 2;
+        extraInstances.value.push(createDefaultInstance(nextIndex));
+        saveExtraInstances();
+    }
+
+    function removeExtraInstance(id) {
+        const idx = extraInstances.value.findIndex((i) => i.id === id);
+        if (idx !== -1) {
+            extraInstances.value.splice(idx, 1);
+            saveExtraInstances();
+        }
+    }
+
+    function updateExtraInstance(id, field, value) {
+        const instance = extraInstances.value.find((i) => i.id === id);
+        if (instance) {
+            instance[field] = value;
+            saveExtraInstances();
+        }
+    }
+
+    function launchInstanceById(id) {
+        const instance = extraInstances.value.find((i) => i.id === id);
+        if (instance) {
+            launchInstanceByIndex(instance._index, instance.userDataDir, instance.profileDirectory, instance.port, instance.memoryLimit);
+        }
+    }
+
+    function launchInstanceByIndex(instanceIndex, userDataDir, profileDir, port, memoryLimit) {
+        if (typeof AppApi !== 'undefined' && AppApi.LaunchInstanceN) {
+            AppApi.LaunchInstanceN(
+                instanceIndex,
+                userDataDir,
+                profileDir,
+                port,
+                memoryLimit
+            );
+        }
     }
 
     return {
@@ -527,12 +566,8 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         recentActionCooldownEnabled,
         recentActionCooldownMinutes,
 
-        dualInstancePort,
-        dualInstanceUserDataDir,
-        dualInstanceProfileDirectory,
-        enableJiraiFeatures,
-        readOnlySync,
-        dualInstanceMemoryLimit,
+        extraInstances,
+        MAX_EXTRA_INSTANCES,
 
         setIsStartAtWindowsStartup,
         setIsStartAsMinimizedState,
@@ -561,11 +596,10 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         setRecentActionCooldownEnabled,
         setRecentActionCooldownMinutes,
 
-        setDualInstancePort,
-        setDualInstanceUserDataDir,
-        setDualInstanceProfileDirectory,
-        setEnableJiraiFeatures,
-        setReadOnlySync,
-        setDualInstanceMemoryLimit
+        addExtraInstance,
+        removeExtraInstance,
+        updateExtraInstance,
+        launchInstanceById,
+        launchInstanceByIndex
     };
 });

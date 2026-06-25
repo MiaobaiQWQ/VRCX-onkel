@@ -1403,22 +1403,26 @@
                 }
             },
             "dual_instance": {
-                "header": "雙開管理",
-                "launch_instance_2": "啟動第二實例",
-                "launch_instance_2_description": "使用獨立的配置和數據目錄啟動另一個 VRCX 實例。",
+                "header": "多開管理",
+                "empty_state": "尚未配置任何額外實例。點擊「新增實例」以啟動額外的 VRCX 實例。",
+                "add_instance": "新增實例",
+                "max_instances_reached": "最多支援 {max} 個實例",
+                "instance_number": "實例 {n}",
+                "launch": "啟動",
+                "remove": "移除",
                 "port": "端口",
-                "port_description": "第二實例使用的嵌入介面伺服器端口。",
+                "port_description": "此實例使用的嵌入介面伺服器端口。",
                 "user_data_dir": "用戶數據目錄",
-                "user_data_dir_description": "第二實例存儲快取和資料庫的目錄。",
+                "user_data_dir_description": "此實例存儲快取和資料庫的目錄。",
                 "profile_directory": "配置檔案目錄",
-                "profile_directory_description": "第二實例使用的配置檔案名稱。",
-                "instance_2_features": "第二實例功能",
+                "profile_directory_description": "此實例使用的配置檔案名稱。",
+                "features": "實例功能",
                 "enable_jirai_features": "啟用 Jirai 增強模組",
-                "enable_jirai_features_description": "在第二實例中啟用雙人關係查詢、非好友追蹤等功能。",
+                "enable_jirai_features_description": "在此實例中啟用雙人關係查詢、非好友追蹤等功能。",
                 "read_only_sync": "唯讀同步",
-                "read_only_sync_description": "在主實例中以唯讀方式查看第二實例的數據。",
+                "read_only_sync_description": "在主實例中以唯讀方式查看此實例的數據。",
                 "memory_limit": "記憶體限制 (MB)",
-                "memory_limit_description": "限制第二實例的最大記憶體佔用 (Electron --max-old-space-size)。"
+                "memory_limit_description": "限制此實例的最大記憶體佔用 (Electron --max-old-space-size)。"
             }
         }
     },

@@ -34,7 +34,8 @@ namespace VRCX
                 }
                 else
                 {
-                    var folderName = StartupArgs.LaunchArguments.IsInstance2 ? "VRCX_instance2" : "VRCX";
+                    var instanceIndex = StartupArgs.LaunchArguments.InstanceIndex;
+                    var folderName = instanceIndex >= 2 ? $"VRCX_instance{instanceIndex}" : "VRCX";
                     AppDataDirectory = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                         folderName);
                 }
@@ -99,8 +100,8 @@ namespace VRCX
             var fileName = Path.Join(AppDataDirectory, "logs", "VRCX.log");
             if (StartupArgs.LaunchArguments.IsOverlay)
                 fileName = Path.Join(AppDataDirectory, "logs", "VRCX.Overlay.log");
-            else if (StartupArgs.LaunchArguments.IsInstance2)
-                fileName = Path.Join(AppDataDirectory, "logs", "VRCX.instance2.log");
+            else if (StartupArgs.LaunchArguments.InstanceIndex >= 2)
+                fileName = Path.Join(AppDataDirectory, "logs", $"VRCX.instance{StartupArgs.LaunchArguments.InstanceIndex}.log");
 
             LogManager.Setup().LoadConfiguration(builder =>
             {

@@ -12,14 +12,6 @@ const mutualGraph = {
         let friendTable = `${dbVars.userPrefix}_mutual_graph_friends`;
         let linkTable = `${dbVars.userPrefix}_mutual_graph_links`;
         
-        if (typeof AppApi !== 'undefined' && !AppApi.GetIsInstance2()) {
-            const configRepository = (await import('../../services/config')).default;
-            if (configRepository.getBool('VRCX_ReadOnlySync', false)) {
-                friendTable = `instance2_db.instance2_${dbVars.userPrefix}_mutual_graph_friends`;
-                linkTable = `instance2_db.instance2_${dbVars.userPrefix}_mutual_graph_links`;
-            }
-        }
-        
         try {
             await sqliteService.execute((dbRow) => {
                 const friendId = dbRow[0];
@@ -49,13 +41,6 @@ const mutualGraph = {
     async saveMutualGraphSnapshot(entries) {
         if (!dbVars.userPrefix) {
             return;
-        }
-        if (typeof AppApi !== 'undefined' && !AppApi.GetIsInstance2()) {
-            const configRepository = (await import('../../services/config')).default;
-            if (configRepository.getBool('VRCX_ReadOnlySync', false)) {
-                // Read-only mode, do not save
-                return;
-            }
         }
         const friendTable = `${dbVars.userPrefix}_mutual_graph_friends`;
         const linkTable = `${dbVars.userPrefix}_mutual_graph_links`;

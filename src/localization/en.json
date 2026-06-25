@@ -848,25 +848,29 @@
                 "vr": "VR",
                 "media": "Media",
                 "integrations": "Integrations",
-                "dual_instance": "Dual-Instance"
+                "dual_instance": "Multi-Instance"
             },
             "dual_instance": {
-                "header": "Dual-Instance Management",
-                "launch_instance_2": "Launch Second Instance",
-                "launch_instance_2_description": "Launch another VRCX instance with independent configuration and data directory.",
+                "header": "Multi-Instance Management",
+                "empty_state": "No extra instances configured. Click \"Add Instance\" to launch additional VRCX instances.",
+                "add_instance": "Add Instance",
+                "max_instances_reached": "Maximum {max} instances supported",
+                "instance_number": "Instance {n}",
+                "launch": "Launch",
+                "remove": "Remove",
                 "port": "Port",
-                "port_description": "Overlay server port for the second instance.",
+                "port_description": "Overlay server port for this instance.",
                 "user_data_dir": "User Data Directory",
-                "user_data_dir_description": "Directory where the second instance stores cache and database.",
+                "user_data_dir_description": "Directory where this instance stores cache and database.",
                 "profile_directory": "Profile Directory",
-                "profile_directory_description": "Profile name used by the second instance.",
-                "instance_2_features": "Second Instance Features",
+                "profile_directory_description": "Profile name used by this instance.",
+                "features": "Instance Features",
                 "enable_jirai_features": "Enable Jirai Enhanced Modules",
-                "enable_jirai_features_description": "Enable features like Two-person relationship query and Non-friend tracking in the second instance.",
+                "enable_jirai_features_description": "Enable features like Two-person relationship query and Non-friend tracking in this instance.",
                 "read_only_sync": "Read-only Sync",
-                "read_only_sync_description": "View second instance data in read-only mode from the primary instance.",
+                "read_only_sync_description": "View this instance data in read-only mode from the primary instance.",
                 "memory_limit": "Memory Limit (MB)",
-                "memory_limit_description": "Limit the maximum memory usage of the second instance (Electron --max-old-space-size)."
+                "memory_limit_description": "Limit the maximum memory usage of this instance (Electron --max-old-space-size)."
             },
             "social": {
                 "interaction": {
