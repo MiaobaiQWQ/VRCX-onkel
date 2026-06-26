@@ -10,6 +10,7 @@ import { useAvatarStore } from '../stores/avatar';
 import { addAvatarWearTime } from './avatarCoordinator';
 import { useGameLogStore } from '../stores/gameLog';
 import { useGameStore } from '../stores/game';
+import { useGeneralSettingsStore } from '../stores/settings/general';
 import { useInstanceStore } from '../stores/instance';
 import { useLaunchStore } from '../stores/launch';
 import { useLocationStore } from '../stores/location';
@@ -272,5 +273,103 @@ export async function runCheckVRChatDebugLoggingFlow() {
         console.log('Enabled debug logging');
     } catch (e) {
         console.error(e);
+    }
+}
+
+/**
+ * Detects running VRChat clients and binds them to VRCX instances.
+ * This ensures each VRCX instance only shows data for its corresponding VRChat client.
+ */
+export async function runDetectClientBindingFlow() {
+    const generalSettingsStore = useGeneralSettingsStore();
+    const userStore = useUserStore();
+
+    if (typeof AppApi === 'undefined' || !AppApi.GetRunningVRChatClients) {
+        return;
+    }
+
+    try {
+        const clients = await AppApi.GetRunningVRChatClients();
+        const currentUserId = userStore.currentUser?.id;
+
+        for (const client of clients) {
+            for (const instance of generalSettingsStore.extraInstances) {
+                if (instance._index === 0) continue;
+                if (instance.boundUserId && instance.boundUserId !== currentUserId) continue;
+                if (instance.boundPid > 0 && instance.boundPid !== client.pid) continue;
+
+                if (!instance.boundPlatform || instance.boundPlatform === client.platform) {
+                    instance.boundPlatform = client.platform;
+                    instance.boundPid = client.pid;
+                    generalSettingsStore.saveExtraInstances();
+                    console.log(`Bound instance ${instance._index} to ${client.platform} client (PID: ${client.pid})`);
+                    break;
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Failed to detect VRChat clients:', e);
+    }
+}
+
+/**
+ * Checks if the current user's data should be displayed based on client binding.
+ * @returns {boolean} True if data should be displayed for this instance.
+ */
+export function shouldDisplayUserData() {
+    const generalSettingsStore = useGeneralSettingsStore();
+    const userStore = useUserStore();
+    const currentUserId = userStore.currentUser?.id;
+
+    for (const instance of generalSettingsStore.extraInstances) {
+        if (instance._index === 0) continue;
+        if (instance.boundUserId && instance.boundUserId !== currentUserId) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Updates client binding when a VRChat client starts.
+ * @param {object} monitoredProcess The process that started.
+ */
+export async function onVRChatClientStarted(monitoredProcess) {
+    const generalSettingsStore = useGeneralSettingsStore();
+    const userStore = useUserStore();
+
+    if (monitoredProcess.ProcessName === 'vrchat' || monitoredProcess.ProcessName === 'vrserver') {
+        const pid = monitoredProcess.Pid;
+        const currentUserId = userStore.currentUser?.id;
+
+        for (const instance of generalSettingsStore.extraInstances) {
+            if (instance._index === 0) continue;
+            if (instance.boundUserId && instance.boundUserId !== currentUserId) continue;
+            if (instance.boundPid > 0) continue;
+
+            instance.boundPid = pid;
+            generalSettingsStore.saveExtraInstances();
+            console.log(`Instance ${instance._index} bound to new VRChat client (PID: ${pid})`);
+            break;
+        }
+    }
+}
+
+/**
+ * Updates client binding when a VRChat client exits.
+ * @param {object} monitoredProcess The process that exited.
+ */
+export function onVRChatClientExited(monitoredProcess) {
+    const generalSettingsStore = useGeneralSettingsStore();
+    const currentInstanceIndex = generalSettingsStore.extraInstances.find((i) => i._index === 0);
+
+    for (const instance of generalSettingsStore.extraInstances) {
+        if (instance._index === 0) continue;
+        if (instance.boundPid === monitoredProcess.Pid) {
+            instance.boundPid = 0;
+            generalSettingsStore.saveExtraInstances();
+            console.log(`VRChat client exited for instance ${instance._index} (PID: ${monitoredProcess.Pid})`);
+            break;
+        }
     }
 }

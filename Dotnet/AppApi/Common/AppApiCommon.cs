@@ -231,5 +231,87 @@ namespace VRCX
         {
             return VRCIPC.Send(launchUrl);
         }
+
+        public List<VRChatClientInfo> GetRunningVRChatClients()
+        {
+            var clients = new List<VRChatClientInfo>();
+            var processes = Process.GetProcessesByName("vrchat");
+            foreach (var process in processes)
+            {
+                if (WinApi.HasProcessExited(process.Id))
+                    continue;
+
+                var clientInfo = new VRChatClientInfo
+                {
+                    Pid = process.Id,
+                    ProcessName = process.ProcessName,
+                    Platform = DetectVRChatPlatform(process)
+                };
+                clients.Add(clientInfo);
+                process.Dispose();
+            }
+
+            var vrserverProcesses = Process.GetProcessesByName("vrserver");
+            foreach (var process in vrserverProcesses)
+            {
+                if (WinApi.HasProcessExited(process.Id))
+                    continue;
+
+                var clientInfo = new VRChatClientInfo
+                {
+                    Pid = process.Id,
+                    ProcessName = process.ProcessName,
+                    Platform = "quest"
+                };
+                clients.Add(clientInfo);
+                process.Dispose();
+            }
+
+            return clients;
+        }
+
+        private string DetectVRChatPlatform(Process process)
+        {
+            try
+            {
+                var parentProcess = WinApi.GetParentProcess(process.Id);
+                if (parentProcess != null)
+                {
+                    var parentName = parentProcess.ProcessName.ToLower();
+                    if (parentName.Contains("steam"))
+                        return "steam";
+                    if (parentName.Contains("oculus"))
+                        return "oculus";
+                    parentProcess.Dispose();
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                var commandLine = WinApi.GetProcessCommandLine(process.Id);
+                if (!string.IsNullOrEmpty(commandLine))
+                {
+                    if (commandLine.Contains("--oidc-token"))
+                        return "steam";
+                    if (commandLine.Contains("com.oculus"))
+                        return "oculus";
+                }
+            }
+            catch
+            {
+            }
+
+            return "unknown";
+        }
+    }
+
+    public class VRChatClientInfo
+    {
+        public int Pid { get; set; }
+        public string ProcessName { get; set; }
+        public string Platform { get; set; }
     }
 }

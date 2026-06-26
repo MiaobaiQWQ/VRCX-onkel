@@ -1016,6 +1016,10 @@ export const useAuthStore = defineStore('Auth', () => {
         AppApi.CheckGameRunning(); // restore state from hot-reload
 
         activityStore.startFullCacheBuild(userStore.currentUser.id);
+
+        import('../coordinators/gameCoordinator').then(({ runDetectClientBindingFlow }) => {
+            runDetectClientBindingFlow();
+        });
     }
 
     /**

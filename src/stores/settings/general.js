@@ -56,7 +56,9 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
             profileDirectory: `instance${index}`,
             enableJiraiFeatures: true,
             readOnlySync: false,
-            memoryLimit: 512
+            memoryLimit: 512,
+            boundUserId: '',
+            boundPlatform: ''
         };
     }
 
@@ -539,6 +541,59 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         }
     }
 
+    async function detectAndBindRunningClients() {
+        if (typeof AppApi === 'undefined' || !AppApi.GetRunningVRChatClients) {
+            return;
+        }
+
+        const clients = await AppApi.GetRunningVRChatClients();
+        for (const client of clients) {
+            for (const instance of extraInstances.value) {
+                if (instance._index === 0) continue;
+                if (instance.boundPlatform && instance.boundPlatform !== client.platform) continue;
+                if (instance.boundUserId) continue;
+
+                instance.boundUserId = '';
+                instance.boundPlatform = client.platform;
+                instance.boundPid = client.pid;
+                break;
+            }
+        }
+        saveExtraInstances();
+    }
+
+    function bindUserToInstance(instanceId, userId, platform = '') {
+        const instance = extraInstances.value.find((i) => i.id === instanceId);
+        if (instance) {
+            instance.boundUserId = userId;
+            instance.boundPlatform = platform;
+            saveExtraInstances();
+        }
+    }
+
+    function unbindUserFromInstance(instanceId) {
+        const instance = extraInstances.value.find((i) => i.id === instanceId);
+        if (instance) {
+            instance.boundUserId = '';
+            instance.boundPlatform = '';
+            instance.boundPid = null;
+            saveExtraInstances();
+        }
+    }
+
+    function isUserBoundToInstance(instanceId, userId) {
+        const instance = extraInstances.value.find((i) => i.id === instanceId);
+        if (!instance) return false;
+        if (!instance.boundUserId) return true;
+        return instance.boundUserId === userId;
+    }
+
+    function isClientRunningForInstance(instanceId) {
+        const instance = extraInstances.value.find((i) => i.id === instanceId);
+        if (!instance) return false;
+        return instance.boundPid > 0;
+    }
+
     return {
         isStartAtWindowsStartup,
         isStartAsMinimizedState,
@@ -600,6 +655,12 @@ export const useGeneralSettingsStore = defineStore('GeneralSettings', () => {
         removeExtraInstance,
         updateExtraInstance,
         launchInstanceById,
-        launchInstanceByIndex
+        launchInstanceByIndex,
+        detectAndBindRunningClients,
+        bindUserToInstance,
+        unbindUserFromInstance,
+        isUserBoundToInstance,
+        isClientRunningForInstance,
+        saveExtraInstances
     };
 });

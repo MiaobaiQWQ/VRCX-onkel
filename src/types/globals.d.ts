@@ -251,6 +251,13 @@ declare global {
         QuitGame(): Promise<number>;
         StartGame(arguments: string): Promise<boolean>;
         StartGameFromPath(path: string, arguments: string): Promise<boolean>;
+        GetRunningVRChatClients(): Promise<VRChatClientInfo[]>;
+
+        interface VRChatClientInfo {
+            pid: number;
+            processName: string;
+            platform: string;
+        }
 
         // Registry
         GetVRChatRegistryKey(key: string): Promise<any>;

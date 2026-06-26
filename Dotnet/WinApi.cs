@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Win32;
 
 namespace VRCX
@@ -34,11 +36,24 @@ namespace VRCX
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool CloseHandle(IntPtr hObject);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, uint dwProcessId);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool QueryFullProcessImageName(IntPtr hProcess, int dwFlags, StringBuilder lpExeName, ref int lpdwSize);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr NtQueryInformationProcess(IntPtr processHandle, int processInformationClass, IntPtr processInformation, uint processInformationLength, out uint returnLength);
+
         /// <summary>
         /// Flag that specifies the access rights to query limited information about a process.
         /// This won't throw an exception when we try to access info about an elevated process
         /// </summary>
         private const int PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+        private const int PROCESS_QUERY_INFORMATION = 0x0400;
+        private const int PROCESS_VM_READ = 0x0010;
+
+        private const int PROCESSINFO_BASIC_INFORMATION = 0;
 
         /// <summary>
         /// Determines whether the specified process has exited using WinAPI's GetExitCodeProcess running with PROCESS_QUERY_LIMITED_INFORMATION.
@@ -98,6 +113,76 @@ namespace VRCX
             }
 
             return null;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct PROCESS_BASIC_INFORMATION
+        {
+            public IntPtr ExitStatus;
+            public IntPtr PebBaseAddress;
+            public IntPtr AffinityMask;
+            public IntPtr BasePriority;
+            public IntPtr UniqueProcessId;
+            public IntPtr InheritedFromUniqueProcessId;
+        }
+
+        public static Process GetParentProcess(int pid)
+        {
+            try
+            {
+                var pbi = new PROCESS_BASIC_INFORMATION();
+                var processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, (uint)pid);
+                if (processHandle == IntPtr.Zero)
+                    return null;
+
+                try
+                {
+                    var result = NtQueryInformationProcess(processHandle, PROCESSINFO_BASIC_INFORMATION, IntPtr.Zero, (uint)Marshal.SizeOf(pbi), out uint _);
+                    if (result != IntPtr.Zero)
+                        return null;
+
+                    int parentPid = pbi.InheritedFromUniqueProcessId.ToInt32();
+                    if (parentPid == 0)
+                        return null;
+
+                    return Process.GetProcessById(parentPid);
+                }
+                finally
+                {
+                    CloseHandle(processHandle);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static string GetProcessCommandLine(int pid)
+        {
+            try
+            {
+                var process = Process.GetProcessById(pid);
+                try
+                {
+                    var startInfo = process.StartInfo;
+                    if (!string.IsNullOrEmpty(startInfo.FileName))
+                    {
+                        var args = startInfo.Arguments;
+                        if (!string.IsNullOrEmpty(args))
+                            return $"{startInfo.FileName} {args}";
+                        return startInfo.FileName;
+                    }
+                }
+                finally
+                {
+                    process.Dispose();
+                }
+            }
+            catch
+            {
+            }
+            return string.Empty;
         }
     }
 }

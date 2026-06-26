@@ -870,7 +870,20 @@
                 "read_only_sync": "Read-only Sync",
                 "read_only_sync_description": "View this instance data in read-only mode from the primary instance.",
                 "memory_limit": "Memory Limit (MB)",
-                "memory_limit_description": "Limit the maximum memory usage of this instance (Electron --max-old-space-size)."
+                "memory_limit_description": "Limit the maximum memory usage of this instance (Electron --max-old-space-size).",
+                "client_binding": "Client Binding",
+                "client_binding_description": "Automatically detect the corresponding VRChat client for this account.",
+                "bound_platform": "Bound Platform",
+                "bound_user": "Bound User",
+                "unbind": "Unbind",
+                "detect_clients": "Detect Clients",
+                "platform_steam": "Steam",
+                "platform_oculus": "Oculus",
+                "platform_quest": "Quest",
+                "platform_unknown": "Unknown",
+                "no_client_detected": "No corresponding client detected",
+                "client_running": "Client Running",
+                "auto_detect": "Auto Detect"
             },
             "social": {
                 "interaction": {
